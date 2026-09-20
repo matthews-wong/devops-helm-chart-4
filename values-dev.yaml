@@ -1,0 +1,16 @@
+# Overrides for a dev environment: single replica, no autoscaling, room to
+# fail fast without eating cluster capacity. Layer on top of values.yaml:
+#   helm template echo-web . -f values.yaml -f values-dev.yaml
+
+replicaCount: 1
+
+resources:
+  requests:
+    cpu: 25m
+    memory: 16Mi
+  limits:
+    cpu: 100m
+    memory: 64Mi
+
+autoscaling:
+  enabled: false
