@@ -1,0 +1,11 @@
+apiVersion: v2
+name: echo-web
+description: A minimal, hardened Helm chart for a static nginx web service
+type: application
+version: 0.1.0
+appVersion: "1.27"
+keywords:
+  - nginx
+  - web
+maintainers:
+  - name: Matthews Wong
