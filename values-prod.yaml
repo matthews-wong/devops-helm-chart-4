@@ -1,0 +1,19 @@
+# Overrides for production: more headroom, autoscaling on, higher floor so a
+# traffic dip never scales below what a single zone outage would need.
+#   helm template echo-web . -f values.yaml -f values-prod.yaml
+
+replicaCount: 3
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 64Mi
+  limits:
+    cpu: 400m
+    memory: 256Mi
+
+autoscaling:
+  enabled: true
+  minReplicas: 3
+  maxReplicas: 10
+  targetCPUUtilizationPercentage: 60
