@@ -1,5 +1,7 @@
 # echo-web
 
+[![validate](https://github.com/matthews-wong/devops-helm-chart-4/actions/workflows/validate.yaml/badge.svg)](https://github.com/matthews-wong/devops-helm-chart-4/actions/workflows/validate.yaml)
+
 A small Helm chart for a static nginx web service. Built to try out chart
 patterns I don't get to use day-to-day: per-environment values files, a
 hardened pod spec, and validating the rendered output instead of just the
@@ -20,6 +22,29 @@ helm template echo-web . -f values.yaml -f values-dev.yaml
 helm install echo-web . -f values.yaml -f values-prod.yaml
 ```
 
+## Validation
+
+```sh
+./validate.sh
+```
+
+Runs `helm lint` against the base values and each environment overlay, then
+renders every combination and checks it against the Kubernetes schema with
+[kubeconform](https://github.com/yannh/kubeconform). Neither tool needs to be
+preinstalled - the script downloads pinned, checksum-verified releases into
+`~/.cache` if they're missing. The same script runs in CI on every push and
+pull request against `main`.
+
 ## Design decisions
 
-More detail lands here as the chart grows.
+- **Image pinned by digest.** `image.tag` stays human-readable in `values.yaml`
+  while the container actually pulls `repository:tag@digest`, so a rebuild
+  can't silently change what ships.
+- **Read-only root filesystem.** nginx still needs to write to `/tmp`,
+  `/var/cache/nginx` and `/var/run` - those are mounted as `emptyDir` volumes
+  rather than loosening `readOnlyRootFilesystem`.
+- **`replicas` is omitted when autoscaling is enabled.** Otherwise every
+  `helm upgrade` would fight the HPA back down to `replicaCount`.
+- **A `checksum/config` pod annotation** hashes the ConfigMap template so
+  editing `indexHtml` triggers a rollout instead of leaving old pods serving
+  stale content until they're recycled for some other reason.
