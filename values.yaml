@@ -42,6 +42,13 @@ service:
   port: 80
   targetPort: 8080
 
+indexHtml: |
+  <!doctype html>
+  <html>
+    <head><title>echo-web</title></head>
+    <body><h1>Hello from echo-web</h1></body>
+  </html>
+
 probes:
   liveness:
     path: /
