@@ -19,10 +19,12 @@ spec:
     metadata:
       labels:
         {{- include "echo-web.selectorLabels" . | nindent 8 }}
-      {{- with .Values.podAnnotations }}
       annotations:
+        # Forces a rollout when the mounted index page changes.
+        checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+        {{- with .Values.podAnnotations }}
         {{- toYaml . | nindent 8 }}
-      {{- end }}
+        {{- end }}
     spec:
       serviceAccountName: {{ include "echo-web.serviceAccountName" . }}
       automountServiceAccountToken: {{ .Values.serviceAccount.automountServiceAccountToken }}
@@ -60,6 +62,9 @@ spec:
               mountPath: /var/cache/nginx
             - name: run
               mountPath: /var/run
+            - name: index-html
+              mountPath: /usr/share/nginx/html/index.html
+              subPath: index.html
       volumes:
         - name: tmp
           emptyDir:
@@ -70,3 +75,6 @@ spec:
         - name: run
           emptyDir:
             sizeLimit: 1Mi
+        - name: index-html
+          configMap:
+            name: {{ include "echo-web.fullname" . }}
