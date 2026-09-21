@@ -78,3 +78,9 @@ autoscaling:
   minReplicas: 2
   maxReplicas: 6
   targetCPUUtilizationPercentage: 70
+
+# Off by default: a single-replica dev deployment would have nothing left
+# to voluntarily evict once minAvailable is met. Turned on in values-prod.yaml.
+podDisruptionBudget:
+  enabled: false
+  minAvailable: 1
