@@ -1,0 +1,18 @@
+echo-web is installed as {{ .Release.Name }} in namespace {{ .Release.Namespace }}.
+
+Check rollout status:
+  kubectl rollout status deployment/{{ include "echo-web.fullname" . }} -n {{ .Release.Namespace }}
+
+Reach it from inside the cluster:
+  kubectl run curl --rm -it --image=curlimages/curl:8.10.1 --restart=Never -n {{ .Release.Namespace }} -- \
+    curl http://{{ include "echo-web.fullname" . }}.{{ .Release.Namespace }}.svc.cluster.local:{{ .Values.service.port }}
+
+Or port-forward from your machine:
+  kubectl port-forward -n {{ .Release.Namespace }} svc/{{ include "echo-web.fullname" . }} 8080:{{ .Values.service.port }}
+
+Run the bundled connection test:
+  helm test {{ .Release.Name }} -n {{ .Release.Namespace }}
+{{- if not .Values.autoscaling.enabled }}
+
+autoscaling is disabled - replicaCount is fixed at {{ .Values.replicaCount }}.
+{{- end }}
