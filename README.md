@@ -10,8 +10,11 @@ templates.
 ## What's in the box
 
 - `templates/` - Deployment, Service, ServiceAccount, HorizontalPodAutoscaler,
-  and a ConfigMap holding the page nginx serves.
-- `values.yaml` - sane defaults for a single environment.
+  PodDisruptionBudget, NetworkPolicy, and a ConfigMap holding the page nginx
+  serves.
+- `templates/tests/` - a `helm test` hook that curls the Service.
+- `values.yaml` - sane defaults for a single environment, checked against
+  `values.schema.json` by `helm lint`.
 - `values-dev.yaml` / `values-prod.yaml` - overrides layered on top of the
   defaults with `-f values.yaml -f values-<env>.yaml`.
 
@@ -20,6 +23,7 @@ templates.
 ```sh
 helm template echo-web . -f values.yaml -f values-dev.yaml
 helm install echo-web . -f values.yaml -f values-prod.yaml
+helm test echo-web
 ```
 
 ## Validation
@@ -48,3 +52,12 @@ pull request against `main`.
 - **A `checksum/config` pod annotation** hashes the ConfigMap template so
   editing `indexHtml` triggers a rollout instead of leaving old pods serving
   stale content until they're recycled for some other reason.
+- **`startupProbe` gates `livenessProbe`/`readinessProbe`.** Their
+  `initialDelaySeconds` stay at 0 - the startup check already covers "give the
+  container time to come up", so there's only one place that timing is tuned.
+- **PodDisruptionBudget and NetworkPolicy are off by default, on in prod.**
+  A single dev replica has nothing left to evict once `minAvailable` is met,
+  and the default NetworkPolicy `allowFrom` (same-namespace) would need
+  tuning for clusters where the ingress controller lives elsewhere - both are
+  the kind of thing you want on before a real rollout, not before a local
+  `helm template`.
