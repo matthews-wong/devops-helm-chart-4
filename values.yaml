@@ -50,13 +50,19 @@ indexHtml: |
   </html>
 
 probes:
+  # startupProbe gates liveness/readiness, so their initialDelaySeconds stay
+  # at 0 - the startup check already covers "give it time to come up".
+  startup:
+    path: /
+    failureThreshold: 30
+    periodSeconds: 2
   liveness:
     path: /
-    initialDelaySeconds: 5
+    initialDelaySeconds: 0
     periodSeconds: 10
   readiness:
     path: /
-    initialDelaySeconds: 2
+    initialDelaySeconds: 0
     periodSeconds: 5
 
 resources:
