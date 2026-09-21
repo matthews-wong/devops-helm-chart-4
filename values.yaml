@@ -84,3 +84,12 @@ autoscaling:
 podDisruptionBudget:
   enabled: false
   minAvailable: 1
+
+# Off by default so it doesn't need tuning to try the chart locally. The
+# default allowFrom scopes ingress to pods in the same namespace - if your
+# ingress controller lives elsewhere, override allowFrom with its namespace
+# selector.
+networkPolicy:
+  enabled: false
+  allowFrom:
+    - podSelector: {}
