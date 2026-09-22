@@ -30,6 +30,9 @@ helm test echo-web
 
 ```sh
 ./validate.sh
+# or, for individual steps:
+make lint
+make template
 ```
 
 Runs `helm lint` against the base values and each environment overlay, then
@@ -61,3 +64,11 @@ pull request against `main`.
   tuning for clusters where the ingress controller lives elsewhere - both are
   the kind of thing you want on before a real rollout, not before a local
   `helm template`.
+- **`preStop: sleep 5` plus a matching `terminationGracePeriodSeconds`.** A pod
+  can still receive traffic for a moment after it's removed from the Service's
+  endpoints, so nginx keeps running just long enough to drain those requests
+  instead of dropping them.
+- **Pod anti-affinity defaults to `soft`.** `preferredDuringScheduling` spreads
+  replicas across nodes without blocking scheduling on a single-node dev
+  cluster; `podAntiAffinity: hard` is available for clusters where you want it
+  enforced.
