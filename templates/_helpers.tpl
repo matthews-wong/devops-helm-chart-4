@@ -42,6 +42,30 @@ app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end }}
 
 {{/*
+Pod anti-affinity spreading replicas across nodes, controlled by
+.Values.podAntiAffinity ("soft", "hard", or "" to disable).
+*/}}
+{{- define "echo-web.affinity" -}}
+{{- if eq .Values.podAntiAffinity "hard" -}}
+podAntiAffinity:
+  requiredDuringSchedulingIgnoredDuringExecution:
+    - labelSelector:
+        matchLabels:
+          {{- include "echo-web.selectorLabels" . | nindent 10 }}
+      topologyKey: kubernetes.io/hostname
+{{- else if eq .Values.podAntiAffinity "soft" -}}
+podAntiAffinity:
+  preferredDuringSchedulingIgnoredDuringExecution:
+    - weight: 100
+      podAffinityTerm:
+        labelSelector:
+          matchLabels:
+            {{- include "echo-web.selectorLabels" . | nindent 12 }}
+        topologyKey: kubernetes.io/hostname
+{{- end }}
+{{- end }}
+
+{{/*
 Name of the ServiceAccount to use.
 */}}
 {{- define "echo-web.serviceAccountName" -}}
