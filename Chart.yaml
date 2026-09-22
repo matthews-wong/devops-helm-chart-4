@@ -4,6 +4,9 @@ description: A minimal, hardened Helm chart for a static nginx web service
 type: application
 version: 0.2.0
 appVersion: "1.27"
+home: https://github.com/matthews-wong/devops-helm-chart-4
+sources:
+  - https://github.com/matthews-wong/devops-helm-chart-4
 keywords:
   - nginx
   - web
