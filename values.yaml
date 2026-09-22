@@ -4,6 +4,12 @@
 
 replicaCount: 2
 
+# Spreads replicas across nodes so one node failure doesn't take out every
+# replica. "soft" (preferredDuringScheduling) never blocks scheduling, so it
+# stays the default even on a single-node dev cluster; "hard" requires it;
+# "" disables anti-affinity entirely.
+podAntiAffinity: soft
+
 image:
   repository: nginxinc/nginx-unprivileged
   tag: "1.27-alpine"
