@@ -49,6 +49,12 @@ indexHtml: |
     <body><h1>Hello from echo-web</h1></body>
   </html>
 
+# preStop sleeps just past the time it takes an endpoint update to propagate
+# to kube-proxy / the ingress controller, so in-flight connections aren't cut
+# when a pod is removed from the Service before nginx actually stops.
+terminationGracePeriodSeconds: 15
+preStopSleepSeconds: 5
+
 probes:
   # startupProbe gates liveness/readiness, so their initialDelaySeconds stay
   # at 0 - the startup check already covers "give it time to come up".
